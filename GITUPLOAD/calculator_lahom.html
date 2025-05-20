@@ -211,13 +211,6 @@
             </div>
             <div class="rtSide">
                 <div class="selectItem">
-                    <p class="selectLabel">기존 견적 가</p>
-                    <input type="text" id="inputPreviousQuote" placeholder="숫자만 입력" min="0"
-                           onchange="calculateTotal()" oninput="formatPreviousQuoteInput()"
-                           style="padding: 8px; font-size: 14pt; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; min-width: 150px; box-sizing: border-box;">
-                </div>
-                <hr/>
-                <div class="selectItem">
                     <p class="selectLabel">전체 가로 길이</p>
                     <input type="number" id="inputZ" placeholder="mm 단위 입력" min="0" max="999999"
                            onchange="calculateTotal()" onblur="handleInputZBlur()">
@@ -362,10 +355,21 @@
 
                 <!-- 결과 표시 영역 -->
                 <div class="resultBox">
-                    <div>현재 견적 가격: <span id="currentQuotePriceText">0원</span></div> <!-- 현재 작업중인 견적 가격 -->
-                    <hr style="margin-top: 15px; margin-bottom: 15px;">
-                    <div style="font-size: 18pt;">최종 합계: <span id="finalTotalPrice">0원</span></div> <!-- 최종 합계 표시 영역 -->
-                    <div style="font-size: 13pt; margin-top: 5px;">(쇼핑몰 총 구매 <strong style="color: red;"><span id="finalTotalCount">0</span>개</strong>)</div> <!-- 총 개수 표시 영역 -->
+                    <div class="selectItem" style="margin-bottom: 15px;"> <!-- 기존 견적가 입력란 -->
+                        <p class="selectLabel" style="font-size: 14pt;">기존 견적 가</p>
+                        <input type="text" id="inputPreviousQuote" placeholder="숫자만 입력" min="0"
+                               onchange="calculateTotal(); calculateFinalTotal();" oninput="formatPreviousQuoteInput()"
+                               style="padding: 8px; font-size: 14pt; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; min-width: 150px; box-sizing: border-box;">
+                    </div>
+                    <div id="currentQuoteDisplaySection">
+                        <span id="currentQuotePriceText">0원</span>
+                        <div id="shopCountDisplay" style="font-size: 13pt; margin-top: 5px;">(쇼핑몰 총 구매 <strong style="color: red;"><span id="finalTotalCount">0</span>개</strong>)</div>
+                    </div> <!-- 현재 작업중인 견적 가격 -->
+                    <hr id="currentQuoteDisplayHr" style="margin-top: 15px; margin-bottom: 15px;">
+                    <div id="finalTotalSection"> <!-- 최종 합계 전체를 감싸는 div -->
+                        <div style="font-size: 18pt;"><span id="finalTotalPrice">0원</span></div>
+                        <div id="finalTotalCountDisplay" style="font-size: 13pt; margin-top: 5px;">(쇼핑몰 총 구매 <strong style="color: red;"><span id="finalTotalCount2">0</span>개</strong>)</div>
+                    </div>
                 </div>
                  <!-- / 결과 표시 영역 -->
             </div>
@@ -494,7 +498,7 @@
                  currentMinValue = 600; // 기본 여닫이 최소값 예시
                  productName = '기본 여닫이';
                  // 기본 여닫이 이미지 URL (필요시 해당 이미지 주소로 변경)
-                 // imageUrl = '기본_여닫이_이미지_URL';
+                 imageUrl = 'https://gi.esmplus.com/haudsystem/1000%EC%8D%B82.jpg';
                  imageAlt = '기본 여닫이 제품 이미지';
                  inputZ.setAttribute('min', currentMinValue.toString());
             }
@@ -621,9 +625,14 @@
 
         // --- Calculation Function ---
         function calculateTotal() {
-            const previousQuotePrice = parseInt((document.getElementById('inputPreviousQuote').value || '0').replace(/[^0-9]/g, '')) || 0; // 기존 견적가 가져오기 (콤마 제거)
+            console.log("--- calculateTotal 시작 ---");
+            const previousQuoteInputElement = document.getElementById('inputPreviousQuote');
+            const previousQuoteValue = (previousQuoteInputElement.value || '0').replace(/[^0-9]/g, '');
+            const previousQuotePrice = parseInt(previousQuoteValue) || 0;
+            console.log("calculateTotal - previousQuotePrice:", previousQuotePrice);
+
             const zValue = parseInt(document.getElementById('inputZ').value) || 0;
-            const ceilingHeight = parseInt(document.getElementById('inputCeilingHeight').value) || 0; // 천고 사이즈 가져오기
+            const ceilingHeight = parseInt(document.getElementById('inputCeilingHeight').value) || 0;
             const productSelect = document.getElementById('productSelect');
             const selectedProduct = productSelect.value;
             let basePrice = 0;
@@ -633,19 +642,11 @@
                  let minValue = 0;
                  if (selectedProduct === 'A') minValue = 1500;
                  else if (selectedProduct === 'B') minValue = 2400;
-                 else if (selectedProduct === 'Y') minValue = 600; // 기본 여닫이 최소값
-
+                 else if (selectedProduct === 'Y') minValue = 600;
                  if (zValue >= minValue) {
-                     if (selectedProduct === 'A') { // 무몰딩 여닫이
-                         basePrice = (zValue / 300) * 84900;
-                     } else if (selectedProduct === 'B') { // 슬라이딩
-                         basePrice = (zValue / 300) * 102000;
-                     } else if (selectedProduct === 'Y') { // 기본 여닫이
-                         // 기본 여닫이 가격 계산식: (가로/300 * 120,000) + 기본가 100,000 가정
-                         // 요구사항에 따라 이 계산식은 변경될 수 있습니다.
-                         // 만약 고정 100,000원이라면 basePrice = 100000; 으로 변경
-                         basePrice = (zValue / 300) * 80900;
-                     }
+                     if (selectedProduct === 'A') { basePrice = (zValue / 300) * 84900; }
+                     else if (selectedProduct === 'B') { basePrice = (zValue / 300) * 102000; }
+                     else if (selectedProduct === 'Y') { basePrice = (zValue / 300) * 80900; }
                  }
             }
 
@@ -653,129 +654,162 @@
             let optionsPrice = 0;
             for (const id in addedOptions) {
                 if (addedOptions.hasOwnProperty(id)) {
-                    const option = addedOptions[id];
-                    optionsPrice += option.price * option.quantity;
+                    optionsPrice += addedOptions[id].price * addedOptions[id].quantity;
                 }
             }
 
-            // 3. 총 가격 합산 (기본 + 옵션)
             let totalPrice = basePrice + optionsPrice;
-
-            // 3.5. 직접 추가된 금액 합산
             totalPrice += currentDirectAddAmount;
-
-            // 4. 천고 사이즈 추가 금액 계산
             let ceilingPrice = 0;
-            if (ceilingHeight > 2400 && ceilingHeight <= 2455) {
-                ceilingPrice = 50000;
-            } else if (ceilingHeight > 2455) {
-                ceilingPrice = 100000;
-            }
+            if (ceilingHeight > 2400 && ceilingHeight <= 2455) { ceilingPrice = 50000; }
+            else if (ceilingHeight > 2455) { ceilingPrice = 100000; }
             totalPrice += ceilingPrice;
-
             if(isNaN(totalPrice)) totalPrice = 0;
+            console.log("calculateTotal - totalPrice (옵션 등 포함, 선결제 제외 전):", totalPrice);
 
-            // --- ▼▼▼ 결과 표시 로직 수정 (현재 견적만 업데이트) ▼▼▼ ---
-            // 실제 총액 (기존 견적가 차감 전)을 기준으로 반올림 및 쇼핑몰 개수 계산
-            const actualRoundedTotalPrice = roundToNearestThousand(totalPrice);
-            currentRoundedPrice = actualRoundedTotalPrice; // 견적 추가 시 사용될 실제 총액 저장
-            currentDisplayCount = Math.floor(actualRoundedTotalPrice / 1000);
+            // 견적 추가 로직을 위한 전역 변수 업데이트
+            currentRoundedPrice = roundToNearestThousand(totalPrice); // 이것이 '실 결제가'
+            currentDisplayCount = Math.max(0, Math.floor(currentRoundedPrice / 1000)); // 실 결제가 기준 개수 (견적 추가시 사용)
+            console.log("calculateTotal - currentRoundedPrice (실 결제가):", currentRoundedPrice);
 
-            // 화면에 표시될 가격 (기존 견적가 차감 후)
-            let displayPriceForScreen = totalPrice;
-            if (previousQuotePrice > 0) {
-                displayPriceForScreen -= previousQuotePrice;
-            }
-            const roundedDisplayPrice = roundToNearestThousand(displayPriceForScreen);
 
+            // --- ▼▼▼ 화면 표시용 지역 변수 계산 ▼▼▼ ---
+            const displayActualGrossPrice = currentRoundedPrice; // '실 결제가'
+            const displayNetFinalPrice = roundToNearestThousand(totalPrice - previousQuotePrice); // '최종 견적 가격' (선결제 반영)
+            console.log("calculateTotal - displayNetFinalPrice (최종 견적 가격):", displayNetFinalPrice);
+            
             const currentQuotePriceElement = document.getElementById('currentQuotePriceText');
-
-            // 현재 견적 정보 전역 변수에 저장 (견적 추가 시 사용)
-            // currentRoundedPrice 와 currentDisplayCount 는 위에서 actualRoundedTotalPrice 기준으로 이미 설정됨
-
-            if (roundedDisplayPrice > 0 || previousQuotePrice > 0) { // 표시 가격이 0보다 크거나, 기존 견적가가 있는 경우 (차감 결과가 0이나 음수일 수 있음)
-                const displayPriceText = roundedDisplayPrice.toLocaleString('ko-KR');
-                const displayCountText = currentDisplayCount.toLocaleString('ko-KR'); // 쇼핑몰 개수는 실제 총액 기준
-
-                let ceilingInfo = '';
-                if (ceilingPrice > 0) {
-                    ceilingInfo = ` (천고 추가금 ${ceilingPrice.toLocaleString('ko-KR')}원 포함)`;
-                }
-                let directAddInfo = '';
-                if (currentDirectAddAmount > 0) {
-                    directAddInfo = ` (직접 추가금 ${currentDirectAddAmount.toLocaleString('ko-KR')}원 포함)`;
-                }
-
-                let previousQuoteInfo = '';
-                if (previousQuotePrice > 0) {
-                    previousQuoteInfo = ` (기존가 ${previousQuotePrice.toLocaleString('ko-KR')}원 차감)`;
-                }
-
-                // 현재 견적 가격 표시 업데이트
-                currentQuotePriceElement.innerHTML = `${displayPriceText}원${previousQuoteInfo}${ceilingInfo}${directAddInfo}<br/>(쇼핑몰 <strong style="color: red;">${displayCountText}개</strong> 구매)`;
-            } else {
-                // 총 가격이 0 이거나 음수이면 '0원' 표시
-                currentQuotePriceElement.innerHTML = '0원';
-                 // currentRoundedPrice = 0; // 실제 총액이 0일때만 0으로. 기존가 차감으로 0이 된 경우는 아님.
-                 // currentDisplayCount = 0;
-                 // 위에서 actualRoundedTotalPrice 기준으로 이미 처리되므로, 여기서는 표시 가격이 0일때만 0으로.
-                 if (actualRoundedTotalPrice <=0) { // 실제 총액이 0 이하면, 견적 추가시 사용될 값들도 0으로.
-                    currentRoundedPrice = 0;
-                    currentDisplayCount = 0;
-                 }
+            const finalTotalCountElement = document.getElementById('finalTotalCount');
+            
+            // 쇼핑몰 구매 개수 계산 - '최종 견적 가격'(displayNetFinalPrice) 기준
+            let shopItemCountForDisplay = 0;
+            if (displayNetFinalPrice > 0) {
+                shopItemCountForDisplay = Math.floor(displayNetFinalPrice / 1000);
             }
-            // 최종 합계는 '견적 추가' 시 업데이트되므로 여기서는 건드리지 않음
-            // --- ▲▲▲ 결과 표시 로직 수정 완료 ▲▲▲ ---
-        } // calculateTotal 함수 끝
+            // 최종 개수는 음수가 될 수 없으므로 0 이상으로 보정 (이미 displayNetFinalPrice > 0 조건으로 처리됨)
+            shopItemCountForDisplay = Math.max(0, shopItemCountForDisplay);
 
+            console.log("calculateTotal - 계산된 개수(shopItemCountForDisplay):", shopItemCountForDisplay);
+            
+            if (finalTotalCountElement) {
+                finalTotalCountElement.textContent = shopItemCountForDisplay.toLocaleString('ko-KR');
+                console.log("calculateTotal - finalTotalCount 엘리먼트에 개수 설정:", shopItemCountForDisplay);
+            } else {
+                console.error("calculateTotal - finalTotalCount 엘리먼트를 찾을 수 없습니다!");
+            }
+            
+            // 디버깅용 로그 (개발자 도구 콘솔에서 확인 가능)
+            // console.log("calculateTotal - 최종 견적 가격(displayNetFinalPrice): " + displayNetFinalPrice + "원, 계산된 개수(itemCountToDisplay): " + itemCountToDisplay); // 이전 로그, shopItemCountForDisplay로 대체
+
+            let finalPriceTypeHtml = '';
+            if (displayNetFinalPrice > 0) {
+                finalPriceTypeHtml = ' <span style="color:#0074D9">(추가결제)</span>';
+            } else if (displayNetFinalPrice < 0) {
+                finalPriceTypeHtml = ' <span style="color:#d8000c">(환불)</span>';
+            }
+            let displayNetFinalPriceStr = '';
+            if (displayNetFinalPrice > 0) {
+                displayNetFinalPriceStr = '+' + displayNetFinalPrice.toLocaleString('ko-KR');
+            } else if (displayNetFinalPrice < 0) {
+                displayNetFinalPriceStr = '-' + Math.abs(displayNetFinalPrice).toLocaleString('ko-KR');
+            } else {
+                displayNetFinalPriceStr = '0';
+            }
+                            let resultHtml = '';
+            resultHtml += `실 결제가 : ${displayActualGrossPrice.toLocaleString('ko-KR')}원<br/>`;
+            resultHtml += `(선결제 금액 ${previousQuotePrice.toLocaleString('ko-KR')}원)<br/>`;
+            resultHtml += `최종 견적 가격: ${displayNetFinalPriceStr}원`;
+            resultHtml += finalPriceTypeHtml;
+            currentQuotePriceElement.innerHTML = resultHtml;
+            
+            // 쇼핑몰 총 구매 표시/숨김 처리
+            const shopCountDisplayElement = document.getElementById('shopCountDisplay');
+            if (shopCountDisplayElement) {
+                // 최종 견적 가격이 0원 이상일 때 표시 (0개일 때도 "(쇼핑몰 총 구매 0개)"로 표시)
+                if (displayNetFinalPrice >= 0) { 
+                    shopCountDisplayElement.style.display = 'block';
+                    console.log("calculateTotal - shopCountDisplay 표시 (displayNetFinalPrice >= 0)");
+                } else { // 최종 견적 가격이 음수 (환불)일 때는 숨김
+                    shopCountDisplayElement.style.display = 'none';
+                    console.log("calculateTotal - shopCountDisplay 숨김 (displayNetFinalPrice < 0)");
+                }
+            } else {
+                console.error("calculateTotal - shopCountDisplay 엘리먼트를 찾을 수 없습니다!");
+            }
+            console.log("--- calculateTotal 종료 ---");
+        }
 
         // --- 견적 추가 및 관리 함수들 ---
 
-        // 현재 설정된 견적을 목록에 추가하는 함수
+        function toggleCurrentQuoteVisibility() {
+            const currentQuoteSection = document.getElementById('currentQuoteDisplaySection');
+            const currentQuoteHr = document.getElementById('currentQuoteDisplayHr');
+            const finalTotalSec = document.getElementById('finalTotalSection'); // finalTotalSection 참조
+
+            if (savedQuotes.length === 0) { 
+                // 견적이 없을 때 - 현재 견적 정보만 표시
+                currentQuoteSection.style.display = 'block';
+                currentQuoteHr.style.display = 'block';
+                finalTotalSec.style.display = 'none';
+            } else if (savedQuotes.length === 1) { 
+                // 견적이 1개일 때 - 해당 견적 정보 표시, 합계 숨김
+                currentQuoteSection.style.display = 'block';
+                currentQuoteHr.style.display = 'block';
+                finalTotalSec.style.display = 'none';
+            } else { 
+                // 2개 이상일 때 - 개별 견적 숨기고 합계만 표시
+                currentQuoteSection.style.display = 'none';
+                currentQuoteHr.style.display = 'none';
+                finalTotalSec.style.display = 'block';
+            }
+        }
+
         function addCurrentQuote() {
-            // 1. 현재 견적이 유효한지 확인 (가격이 0보다 큰지)
-            // 직접 추가 금액만 있는 경우도 유효한 견적으로 처리 (currentRoundedPrice가 0이고 currentDirectAddAmount > 0)
             if (currentRoundedPrice <= 0 && currentDirectAddAmount <= 0) {
                 alert('추가할 유효한 견적이 없습니다. 사이즈, 제품을 선택하거나 직접 금액을 추가해주세요.');
                 return;
             }
-            // 1-1. 제품이 선택되었는지 확인
             const productSelect = document.getElementById('productSelect');
              if (!productSelect.value) {
                  alert('제품을 선택해주세요.');
                  return;
              }
-             // 1-2. 사이즈가 입력되었는지 확인
             const inputZ = document.getElementById('inputZ');
             if (!inputZ.value || parseInt(inputZ.value) <= 0) {
                  alert('전체 가로 사이즈를 입력해주세요.');
                  return;
             }
 
-
-            // 2. 현재 견적 정보를 객체로 만들어 savedQuotes 배열에 추가
             const newQuote = {
-                price: currentRoundedPrice, // currentRoundedPrice는 이미 직접 추가 금액이 포함되어 반올림된 상태
+                price: currentRoundedPrice,
                 count: currentDisplayCount,
-                description: createQuoteDescription(), // 설명 생성 함수 호출
-                directAddAmount: currentDirectAddAmount // 직접 추가된 금액 별도 저장 (설명 표시용)
+                description: createQuoteDescription(),
+                directAddAmount: currentDirectAddAmount
             };
             savedQuotes.push(newQuote);
-
-            // 3. 입력 필드 초기화
+            
+            // 단일 견적인 경우 현재 견적 내용을 그대로 유지 (표시 로직은 toggleCurrentQuoteVisibility에서)
+            if (savedQuotes.length === 1) {
+                const previousQuotePrice = parseInt((document.getElementById('inputPreviousQuote').value || '0').replace(/[^0-9]/g, '')) || 0;
+                const finalTotalCountElement = document.getElementById('finalTotalCount');
+                const finalTotalCount2Element = document.getElementById('finalTotalCount2');
+                const finalSettlementAmount = roundToNearestThousand(currentRoundedPrice - previousQuotePrice);
+                // 추가 결제인 경우만 개수 계산, 환불인 경우에는 0
+                const shopItemCount = (finalSettlementAmount > 0) ? 
+                    Math.max(0, Math.floor(finalSettlementAmount / 1000)) : 0;
+                finalTotalCountElement.textContent = shopItemCount.toLocaleString('ko-KR');
+                finalTotalCount2Element.textContent = shopItemCount.toLocaleString('ko-KR');
+            }
+            
+            toggleCurrentQuoteVisibility();
             resetInputs();
-
-            // 4. 저장된 견적 목록 UI 업데이트
             renderSavedQuotes();
-
-            // 5. 최종 합계 업데이트
             calculateFinalTotal();
         }
 
-        // 저장된 견적 목록을 화면에 표시하는 함수
         function renderSavedQuotes() {
             const listElement = document.getElementById('savedQuotesList');
-            listElement.innerHTML = ''; // 기존 목록 비우기
+            listElement.innerHTML = '';
 
             if (savedQuotes.length === 0) {
                 listElement.innerHTML = '<li style="color: #888;">추가된 견적이 없습니다.</li>';
@@ -784,11 +818,10 @@
 
             savedQuotes.forEach((quote, index) => {
                 const itemElement = document.createElement('li');
-                // 상세 설명 추가 (옵션이 있다면 더 자세히 표시)
                 const priceText = quote.price.toLocaleString('ko-KR');
                 const countText = quote.count.toLocaleString('ko-KR');
                 itemElement.innerHTML = `
-                    <div> <!-- Text container -->
+                    <div>
                         <span><b>견적 ${index + 1}:</b> ${quote.description}</span><br>
                         <span style="margin-left: 10px;">- 가격: ${priceText}원 (쇼핑몰 ${countText}개)</span>
                     </div>
@@ -798,49 +831,92 @@
             });
         }
 
-        // 최종 합계 금액 및 개수를 계산하고 화면에 표시하는 함수
         function calculateFinalTotal() {
-            let finalTotal = 0;
-            let finalCount = 0;
+            let actualTotalAmountFromQuotes = 0;
+            let finalTotalShopCount = 0;
 
             savedQuotes.forEach(quote => {
-                finalTotal += quote.price;
-                finalCount += quote.count;
+                actualTotalAmountFromQuotes += quote.price;
+                // 합계 계산 시에는 각 견적의 count를 더하는 것이 아니라, 최종 정산액 기준으로 새로 계산합니다.
+                // 이 부분은 이전 수정에서 의도적으로 제거되었을 수 있으므로, 주석 처리된 원래 로직을 참고용으로 남깁니다.
+                // finalTotalShopCount += quote.count; 
             });
+            
+            const previousQuotePrice = parseInt((document.getElementById('inputPreviousQuote').value || '0').replace(/[^0-9]/g, '')) || 0;
+            const finalSettlementAmount = roundToNearestThousand(actualTotalAmountFromQuotes - previousQuotePrice);
+            
+            // 추가 결제인 경우만 개수 계산, 환불인 경우에는 0
+            finalTotalShopCount = (finalSettlementAmount > 0) ? 
+                Math.max(0, Math.floor(finalSettlementAmount / 1000)) : 0;
+
+            let settlementTypeHtml = '';
+            if (finalSettlementAmount > 0) {
+                settlementTypeHtml = ' <span style="color:#0074D9">(추가결제)</span>';
+            } else if (finalSettlementAmount < 0) {
+                settlementTypeHtml = ' <span style="color:#d8000c">(환불)</span>';
+            }
+
+            let finalSettlementAmountStr = '';
+            if (finalSettlementAmount > 0) {
+                finalSettlementAmountStr = '+' + finalSettlementAmount.toLocaleString('ko-KR');
+            } else if (finalSettlementAmount < 0) {
+                finalSettlementAmountStr = '-' + Math.abs(finalSettlementAmount).toLocaleString('ko-KR');
+            } else {
+                finalSettlementAmountStr = '0';
+            }
 
             const finalTotalPriceElement = document.getElementById('finalTotalPrice');
-            const finalTotalCountElement = document.getElementById('finalTotalCount');
+            // const finalTotalCountElement = document.getElementById('finalTotalCount'); // 단일 견적용 ID, 여기서 건드리지 않음
+            const finalTotalCount2Element = document.getElementById('finalTotalCount2'); // 최종 합계용 ID
+            const finalTotalCountDisplayElement = document.getElementById('finalTotalCountDisplay'); // 최종 합계 개수 표시 div
 
-            finalTotalPriceElement.textContent = finalTotal.toLocaleString('ko-KR') + '원';
-            finalTotalCountElement.textContent = finalCount.toLocaleString('ko-KR');
+            let resultHtml = `총 견적 금액: ${actualTotalAmountFromQuotes.toLocaleString('ko-KR')}원<br/>`;
+            if (previousQuotePrice > 0) {
+                resultHtml += `(선결제 금액: ${previousQuotePrice.toLocaleString('ko-KR')}원)<br/>`;
+                resultHtml += `최종 정산액: ${finalSettlementAmountStr}원${settlementTypeHtml}`;
+            }
+            if(finalTotalPriceElement) finalTotalPriceElement.innerHTML = resultHtml;
+            
+            // finalTotalCountElement는 calculateTotal에서 관리하므로 여기서는 업데이트하지 않습니다.
+            // if(finalTotalCountElement) finalTotalCountElement.textContent = finalTotalShopCount.toLocaleString('ko-KR'); 
+            
+            if(finalTotalCount2Element) finalTotalCount2Element.textContent = finalTotalShopCount.toLocaleString('ko-KR');
+            
+            // 최종 합계 섹션의 구매 개수 표시 여부 제어
+            if (finalTotalCountDisplayElement) {
+                if (savedQuotes.length > 1 && finalSettlementAmount > 0 && finalTotalShopCount > 0) { // 여러 건의 견적이 있고, 추가결제이며, 개수가 0보다 클 때
+                    finalTotalCountDisplayElement.style.display = 'block';
+                } else {
+                    finalTotalCountDisplayElement.style.display = 'none';
+                }
+            }
         }
 
-        // 입력 필드를 초기 상태로 리셋하는 함수
         function resetInputs() {
             document.getElementById('inputPreviousQuote').value = '';
             document.getElementById('inputZ').value = '';
-            document.getElementById('inputCeilingHeight').value = ''; // 천고 사이즈 필드 초기화
+            document.getElementById('inputCeilingHeight').value = '';
             document.getElementById('productSelect').value = '';
-            addedOptions = {}; // 추가된 옵션 상태 초기화
-            renderAddedOptions(); // 옵션 목록 UI 초기화
-
-            // 직접 추가 금액 관련 초기화
+            const optionSelectIds = ['selectAddSup', 'selectDrawer', 'selectMod', 'selectPowder', 'selectEpFinish'];
+            optionSelectIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            addedOptions = {};
+            renderAddedOptions();
             document.getElementById('directAddAmount').value = '';
             currentDirectAddAmount = 0;
             document.getElementById('appliedDirectAddDisplay').textContent = '반영된 추가 금액: 0원';
-
-            updateImage(); // 제품 이미지 및 관련 상태 초기화 (이 안에서 calculateTotal 호출하여 현재 견적 가격 0으로 만듦)
+            updateImage();
         }
 
-        // 현재 견적에 대한 설명을 생성하는 함수 (renderSavedQuotes 에서 사용)
         function createQuoteDescription() {
             const previousQuoteValue = document.getElementById('inputPreviousQuote').value;
             const zValue = document.getElementById('inputZ').value || 'N/A';
-            const ceilingHeightValue = document.getElementById('inputCeilingHeight').value; // 천고값 가져오기
+            const ceilingHeightValue = document.getElementById('inputCeilingHeight').value;
             const productSelect = document.getElementById('productSelect');
-            const selectedProductName = productSelect.options[productSelect.selectedIndex]?.text || '제품 미선택'; // 선택된 제품 이름 가져오기
+            const selectedProductName = productSelect.options[productSelect.selectedIndex]?.text || '제품 미선택';
 
-            // 천고 정보 포함하여 설명 생성
             let description = `${selectedProductName} (가로 ${zValue}mm`;
             if (ceilingHeightValue && parseInt(ceilingHeightValue) > 0) {
                 const ch = parseInt(ceilingHeightValue);
@@ -855,7 +931,7 @@
                     description += ` [+${(tempCeilingPrice / 10000).toLocaleString('ko-KR')}만]`;
                 }
             }
-            description += `)`; // 괄호 닫기
+            description += `)`;
 
             const optionKeys = Object.keys(addedOptions);
             if (optionKeys.length > 0) {
@@ -875,17 +951,15 @@
             return description;
         }
 
-        // 저장된 견적을 삭제하는 함수
         function removeSavedQuote(indexToRemove) {
             if (indexToRemove >= 0 && indexToRemove < savedQuotes.length) {
-                savedQuotes.splice(indexToRemove, 1); // 배열에서 해당 인덱스 제거
-                renderSavedQuotes(); // 목록 다시 그리기
-                calculateFinalTotal(); // 최종 합계 다시 계산
+                savedQuotes.splice(indexToRemove, 1);
+                toggleCurrentQuoteVisibility();
+                renderSavedQuotes();
+                calculateFinalTotal();
             }
         }
 
-        // --- Utility Function ---
-        // 1,000원 단위 반올림 함수 (500원 초과시 올림, 500원 이하 버림)
         function roundToNearestThousand(price) {
             const remainder = price % 1000;
             if (remainder === 0) return price;
@@ -906,12 +980,12 @@
             }
         }
 
-        // --- Initialization ---
         window.onload = function() {
-            renderSavedQuotes(); // 초기 저장된 견적 목록 렌더링 (비어 있음)
-            calculateFinalTotal(); // 초기 최종 합계 계산 (0원)
-            resetInputs(); // 시작 시 입력 필드 초기화 (이 안에서 updateImage -> calculateTotal 호출됨)
-            formatPreviousQuoteInput(); // 초기화 시 원화 표기 리셋
+            renderSavedQuotes();
+            calculateFinalTotal();
+            resetInputs();
+            formatPreviousQuoteInput();
+            toggleCurrentQuoteVisibility();
         };
     </script>
 </body>
