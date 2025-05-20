@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>하우드 가구 견적기</title>
+    <title>라홈 가구 견적기</title>
     <style>
         /* 스타일은 변경 없음 */
         body {
@@ -211,6 +211,13 @@
             </div>
             <div class="rtSide">
                 <div class="selectItem">
+                    <p class="selectLabel">기존 견적 가</p>
+                    <input type="text" id="inputPreviousQuote" placeholder="숫자만 입력" min="0"
+                           onchange="calculateTotal()" oninput="formatPreviousQuoteInput()"
+                           style="padding: 8px; font-size: 14pt; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; min-width: 150px; box-sizing: border-box;">
+                </div>
+                <hr/>
+                <div class="selectItem">
                     <p class="selectLabel">전체 가로 길이</p>
                     <input type="number" id="inputZ" placeholder="mm 단위 입력" min="0" max="999999"
                            onchange="calculateTotal()" onblur="handleInputZBlur()">
@@ -238,57 +245,82 @@
                 <!-- 추가 옵션 영역 -->
                 <div class="optionsSection">
                     <p class="titleText normaltext" style="text-align: left; padding: 0 0 10px 0; font-size: 14pt;">추가 옵션</p>
+                    
+                    <!-- 추가수납구성 -->
                     <div class="selectItem">
-                         <p class="selectLabel">옵션 선택</p>
-                         <select id="optionSelect">
+                         <p class="selectLabel">추가수납구성</p>
+                         <select id="selectAddSup">
                             <option value="">선택</option>
-                            <optgroup label="추가수납구성">
-                                <option value="ADDSUP_E">추가수납구성 TYPE E (50,000원)</option>
-                                <option value="ADDSUP_F">추가수납구성 TYPE F (90,000원)</option>
-                                <option value="ADDSUP_G">추가수납구성 TYPE G (100,000원)</option>
-                                <option value="ADDSUP_H">추가수납구성 TYPE H (20,000원)</option>
-                                <option value="ADDSUP_I">추가수납구성 TYPE I (30,000원)</option>
-                                <option value="ADDSUP_J">추가수납구성 TYPE J (50,000원)</option>
-                                <option value="ADDSUP_K">추가수납구성 TYPE K (50,000원)</option>
-                            </optgroup>
-                            <optgroup label="서랍추가">
-                                <option value="DRAWER_S1">서랍추가 1단(소) (25,000원)</option>
-                                <option value="DRAWER_S2">서랍추가 2단(소) (50,000원)</option>
-                                <option value="DRAWER_S3">서랍추가 3단(소) (75,000원)</option>
-                                <option value="DRAWER_L1">서랍추가 1단(대) (50,000원)</option>
-                                <option value="DRAWER_L2">서랍추가 2단(대) (100,000원)</option>
-                                <option value="DRAWER_L3">서랍추가 3단(대) (150,000원)</option>
-                            </optgroup>
-                            <optgroup label="변형옵션">
-                                <option value="MOD_STYLER">변형옵션 스타일러장 (170,000원)</option>
-                                <option value="MOD_EPMIRROR">변형옵션 EP거울마감 (150,000원)</option>
-                                <option value="MOD_SWINGDOOR">변형옵션 스윙거울도어 (90,000원)</option>
-                                <option value="MOD_SLIDINGDOOR">변형옵션 슬라이딩거울도어 (120,000원)</option>
-                                <option value="MOD_EXTDRAWER">변형옵션 외부서랍 (80,000원)</option>
-                            </optgroup>
-                            <optgroup label="파우더장옵션">
-                                <option value="POWDER_01">파우더장옵션 TYPE 01 (420,000원)</option>
-                                <option value="POWDER_02">파우더장옵션 TYPE 02 (500,000원)</option>
-                                <option value="POWDER_03">파우더장옵션 TYPE 03 (450,000원)</option>
-                                <option value="POWDER_04">파우더장옵션 TYPE 04 (540,000원)</option>
-                                <option value="POWDER_05">파우더장옵션 TYPE 05 (300,000원)</option>
-                                <option value="POWDER_06">파우더장옵션 TYPE 06 (380,000원)</option>
-                                <option value="POWDER_07">파우더장옵션 TYPE 07 (550,000원)</option>
-                                <option value="POWDER_08">파우더장옵션 TYPE 08 (670,000원)</option>
-                                <option value="POWDER_09">파우더장옵션 TYPE 09 (550,000원)</option>
-                                <option value="POWDER_10">파우더장옵션 TYPE 10 (670,000원)</option>
-                                <option value="POWDER_11">파우더장옵션 TYPE 11 (610,000원)</option>
-                                <option value="POWDER_12">파우더장옵션 TYPE 12 (630,000원)</option>
-                                <option value="POWDER_DIVIDER">파우더장옵션 서랍칸막이 (40,000원)</option>
-                            </optgroup>
-                            <optgroup label="EP 마감">
-                                <option value="EP_FINISH_300">EP 마감 (~300mm) (40,000원)</option>
-                                <option value="EP_FINISH_600">EP 마감 (301~600mm) (50,000원)</option>
-                                <option value="EP_FINISH_800">EP 마감 (601~800mm) (70,000원)</option>
-                                <option value="EP_FINISH_OVER800">EP 마감 (801mm~) (90,000원)</option>
-                            </optgroup>
+                            <option value="ADDSUP_E">수납구성 TYPE E (50,000원)</option>
+                            <option value="ADDSUP_F">수납구성 TYPE F (90,000원) #sliding</option>
+                            <option value="ADDSUP_G">수납구성 TYPE G (100,000원)</option>
+                            <option value="ADDSUP_H">수납구성 TYPE H (20,000원)</option>
+                            <option value="ADDSUP_I">수납구성 TYPE I (30,000원)</option>
+                            <option value="ADDSUP_J">수납구성 TYPE J (50,000원)</option>
+                            <option value="ADDSUP_K">수납구성 TYPE K (50,000원)</option>
                          </select>
                     </div>
+
+                    <!-- 서랍추가 -->
+                    <div class="selectItem">
+                         <p class="selectLabel">서랍추가</p>
+                         <select id="selectDrawer">
+                            <option value="">선택</option>
+                            <option value="DRAWER_S1">서랍추가 1단(소) (25,000원)</option>
+                            <option value="DRAWER_S2">서랍추가 2단(소) (50,000원)</option>
+                            <option value="DRAWER_S3">서랍추가 3단(소) (75,000원)</option>
+                            <option value="DRAWER_L1">서랍추가 1단(대) (50,000원)</option>
+                            <option value="DRAWER_L2">서랍추가 2단(대) (100,000원)</option>
+                            <option value="DRAWER_L3">서랍추가 3단(대) (150,000원)</option>
+                         </select>
+                    </div>
+
+                    <!-- 변형옵션 -->
+                    <div class="selectItem">
+                         <p class="selectLabel">변형옵션</p>
+                         <select id="selectMod">
+                            <option value="">선택</option>
+                            <option value="MOD_STYLER">스타일러장 (170,000원)</option>
+                            <option value="MOD_EPMIRROR">EP거울마감 (150,000원)</option>
+                            <option value="MOD_SWINGDOOR">스윙거울도어 (90,000원)</option>
+                            <option value="MOD_SLIDINGDOOR">슬라이딩거울도어 (120,000원)</option>
+                            <option value="MOD_EXTDRAWER">외부서랍 (80,000원)</option>
+                         </select>
+                    </div>
+
+                    <!-- 파우더장옵션 -->
+                    <div class="selectItem">
+                         <p class="selectLabel">파우더장옵션</p>
+                         <select id="selectPowder">
+                            <option value="">선택</option>
+                            <option value="POWDER_01">파우더장옵션 TYPE 01 (420,000원)</option>
+                            <option value="POWDER_02">파우더장옵션 TYPE 02 (500,000원)</option>
+                            <option value="POWDER_03">파우더장옵션 TYPE 03 (450,000원)</option>
+                            <option value="POWDER_04">파우더장옵션 TYPE 04 (540,000원)</option>
+                            <option value="POWDER_05">파우더장옵션 TYPE 05 (300,000원)</option>
+                            <option value="POWDER_06">파우더장옵션 TYPE 06 (380,000원)</option>
+                            <option value="POWDER_07">파우더장옵션 TYPE 07 (550,000원)</option>
+                            <option value="POWDER_08">파우더장옵션 TYPE 08 (670,000원)</option>
+                            <option value="POWDER_09">파우더장옵션 TYPE 09 (550,000원)</option>
+                            <option value="POWDER_10">파우더장옵션 TYPE 10 (670,000원)</option>
+                            <option value="POWDER_11">파우더장옵션 TYPE 11 (610,000원)</option>
+                            <option value="POWDER_12">파우더장옵션 TYPE 12 (630,000원)</option>
+                            <option value="POWDER_DIVIDER">파우더장옵션 서랍칸막이 (40,000원)</option>
+                         </select>
+                    </div>
+
+                    <!-- EP 마감 -->
+                    <div class="selectItem">
+                         <p class="selectLabel">EP 마감</p>
+                         <select id="selectEpFinish">
+                            <option value="">선택</option>
+                            <option value="EP_FINISH_300">EP 마감 (~300mm) (40,000원)</option>
+                            <option value="EP_FINISH_600">EP 마감 (301~600mm) (50,000원)</option>
+                            <option value="EP_FINISH_800">EP 마감 (601~800mm) (70,000원)</option>
+                            <option value="EP_FINISH_OVER800">EP 마감 (801mm~) (90,000원)</option>
+                         </select>
+                    </div>
+                    
                     <div class="add-button-container">
                         <button id="addOptionButton" onclick="addOption()">옵션 추가</button>
                     </div>
@@ -415,7 +447,7 @@
                 minValue = 2400;
                 productName = '슬라이딩';
             } else if (selectedProduct === 'Y') {
-                minValue = 600; // 기본 여닫이 최소값 예시 (필요시 조정)
+                minValue = 1500; // 기본 여닫이 최소값 예시 (필요시 조정)
                 productName = '기본 여닫이';
             }
 
@@ -481,46 +513,43 @@
         // --- Option Handling Functions ---
 
         function addOption() {
-            const optionSelect = document.getElementById('optionSelect');
-            const selectedOptionId = optionSelect.value;
-
-            if (!selectedOptionId) { // 아무것도 선택되지 않았으면 함수 종료
+            const selectIds = ['selectAddSup', 'selectDrawer', 'selectMod', 'selectPowder', 'selectEpFinish'];
+            let addedAny = false;
+            for (const id of selectIds) {
+                const dropdown = document.getElementById(id);
+                if (dropdown && dropdown.value) {
+                    const selectedOptionId = dropdown.value;
+                    const optionData = availableOptions[selectedOptionId];
+                    if (!optionData) {
+                        alert('선택된 옵션 정보를 찾을 수 없습니다.');
+                        dropdown.value = "";
+                        continue;
+                    }
+                    if (!optionData.hasOwnProperty('price')) {
+                        alert('옵션 가격 정보를 찾을 수 없습니다. (' + optionData.name + ') 관리자에게 문의하세요.');
+                        console.error("Price not found for option:", selectedOptionId, optionData);
+                        dropdown.value = "";
+                        continue;
+                    }
+                    let optionPrice = optionData.price;
+                    let optionName = optionData.name;
+                    if (addedOptions[selectedOptionId]) {
+                        addedOptions[selectedOptionId].quantity++;
+                    } else {
+                        addedOptions[selectedOptionId] = {
+                            name: optionName,
+                            price: optionPrice, 
+                            quantity: 1
+                        };
+                    }
+                    dropdown.value = "";
+                    addedAny = true;
+                }
+            }
+            if (!addedAny) {
                 alert('추가할 옵션을 선택해주세요.');
                 return;
             }
-            
-            const optionData = availableOptions[selectedOptionId];
-
-            if (!optionData) { // 혹시 모를 오류 방지
-                alert('선택된 옵션 정보를 찾을 수 없습니다.');
-                optionSelect.value = ""; // 선택 초기화
-                return;
-            }
-
-            // variable_by_z 관련 로직이 삭제되었으므로, 모든 옵션은 price를 가진다고 가정
-            // 만약 price가 없다면 오류 처리
-            if (!optionData.hasOwnProperty('price')) {
-                alert('옵션 가격 정보를 찾을 수 없습니다. (' + optionData.name + ') 관리자에게 문의하세요.');
-                console.error("Price not found for option:", selectedOptionId, optionData);
-                optionSelect.value = ""; // 선택 초기화
-                return;
-            }
-
-            let optionPrice = optionData.price;
-            let optionName = optionData.name;
-            
-            // 기존 수량 증가 또는 새 옵션 추가 로직은 그대로 유지
-            if (addedOptions[selectedOptionId]) {
-                addedOptions[selectedOptionId].quantity++;
-            } else {
-                addedOptions[selectedOptionId] = {
-                    name: optionName,
-                    price: optionPrice, 
-                    quantity: 1
-                };
-            }
-
-            optionSelect.value = ""; // 드롭다운 선택 초기화
             renderAddedOptions();
             calculateTotal();
         }
@@ -592,6 +621,7 @@
 
         // --- Calculation Function ---
         function calculateTotal() {
+            const previousQuotePrice = parseInt((document.getElementById('inputPreviousQuote').value || '0').replace(/[^0-9]/g, '')) || 0; // 기존 견적가 가져오기 (콤마 제거)
             const zValue = parseInt(document.getElementById('inputZ').value) || 0;
             const ceilingHeight = parseInt(document.getElementById('inputCeilingHeight').value) || 0; // 천고 사이즈 가져오기
             const productSelect = document.getElementById('productSelect');
@@ -635,41 +665,64 @@
             totalPrice += currentDirectAddAmount;
 
             // 4. 천고 사이즈 추가 금액 계산
-            if (ceilingHeight > 2400) {
-                totalPrice += 100000; // 천고 2400 초과 시 100,000원 추가
+            let ceilingPrice = 0;
+            if (ceilingHeight > 2400 && ceilingHeight <= 2455) {
+                ceilingPrice = 50000;
+            } else if (ceilingHeight > 2455) {
+                ceilingPrice = 100000;
             }
+            totalPrice += ceilingPrice;
 
             if(isNaN(totalPrice)) totalPrice = 0;
 
             // --- ▼▼▼ 결과 표시 로직 수정 (현재 견적만 업데이트) ▼▼▼ ---
-            const roundedTotalPrice = roundToNearestThousand(totalPrice);
+            // 실제 총액 (기존 견적가 차감 전)을 기준으로 반올림 및 쇼핑몰 개수 계산
+            const actualRoundedTotalPrice = roundToNearestThousand(totalPrice);
+            currentRoundedPrice = actualRoundedTotalPrice; // 견적 추가 시 사용될 실제 총액 저장
+            currentDisplayCount = Math.floor(actualRoundedTotalPrice / 1000);
+
+            // 화면에 표시될 가격 (기존 견적가 차감 후)
+            let displayPriceForScreen = totalPrice;
+            if (previousQuotePrice > 0) {
+                displayPriceForScreen -= previousQuotePrice;
+            }
+            const roundedDisplayPrice = roundToNearestThousand(displayPriceForScreen);
+
             const currentQuotePriceElement = document.getElementById('currentQuotePriceText');
 
             // 현재 견적 정보 전역 변수에 저장 (견적 추가 시 사용)
-            currentRoundedPrice = roundedTotalPrice;
-            currentDisplayCount = Math.floor(roundedTotalPrice / 1000); // 개수는 정수로 저장
+            // currentRoundedPrice 와 currentDisplayCount 는 위에서 actualRoundedTotalPrice 기준으로 이미 설정됨
 
-            if (roundedTotalPrice > 0) {
-                const displayPrice = roundedTotalPrice.toLocaleString('ko-KR');
-                const displayCountText = currentDisplayCount.toLocaleString('ko-KR'); // 화면 표시용 텍스트
+            if (roundedDisplayPrice > 0 || previousQuotePrice > 0) { // 표시 가격이 0보다 크거나, 기존 견적가가 있는 경우 (차감 결과가 0이나 음수일 수 있음)
+                const displayPriceText = roundedDisplayPrice.toLocaleString('ko-KR');
+                const displayCountText = currentDisplayCount.toLocaleString('ko-KR'); // 쇼핑몰 개수는 실제 총액 기준
 
-                // 천고 추가금액 표시 (선택사항)
                 let ceilingInfo = '';
-                if (ceilingHeight > 2400) {
-                    ceilingInfo = ' (천고 추가금 포함)';
+                if (ceilingPrice > 0) {
+                    ceilingInfo = ` (천고 추가금 ${ceilingPrice.toLocaleString('ko-KR')}원 포함)`;
                 }
                 let directAddInfo = '';
                 if (currentDirectAddAmount > 0) {
                     directAddInfo = ` (직접 추가금 ${currentDirectAddAmount.toLocaleString('ko-KR')}원 포함)`;
                 }
 
+                let previousQuoteInfo = '';
+                if (previousQuotePrice > 0) {
+                    previousQuoteInfo = ` (기존가 ${previousQuotePrice.toLocaleString('ko-KR')}원 차감)`;
+                }
+
                 // 현재 견적 가격 표시 업데이트
-                currentQuotePriceElement.innerHTML = `${displayPrice}원${ceilingInfo}${directAddInfo}<br/>(쇼핑몰 <strong style="color: red;">${displayCountText}개</strong> 구매)`;
+                currentQuotePriceElement.innerHTML = `${displayPriceText}원${previousQuoteInfo}${ceilingInfo}${directAddInfo}<br/>(쇼핑몰 <strong style="color: red;">${displayCountText}개</strong> 구매)`;
             } else {
                 // 총 가격이 0 이거나 음수이면 '0원' 표시
                 currentQuotePriceElement.innerHTML = '0원';
-                 currentRoundedPrice = 0; // 전역 변수도 0으로 초기화
-                 currentDisplayCount = 0;
+                 // currentRoundedPrice = 0; // 실제 총액이 0일때만 0으로. 기존가 차감으로 0이 된 경우는 아님.
+                 // currentDisplayCount = 0;
+                 // 위에서 actualRoundedTotalPrice 기준으로 이미 처리되므로, 여기서는 표시 가격이 0일때만 0으로.
+                 if (actualRoundedTotalPrice <=0) { // 실제 총액이 0 이하면, 견적 추가시 사용될 값들도 0으로.
+                    currentRoundedPrice = 0;
+                    currentDisplayCount = 0;
+                 }
             }
             // 최종 합계는 '견적 추가' 시 업데이트되므로 여기서는 건드리지 않음
             // --- ▲▲▲ 결과 표시 로직 수정 완료 ▲▲▲ ---
@@ -764,6 +817,7 @@
 
         // 입력 필드를 초기 상태로 리셋하는 함수
         function resetInputs() {
+            document.getElementById('inputPreviousQuote').value = '';
             document.getElementById('inputZ').value = '';
             document.getElementById('inputCeilingHeight').value = ''; // 천고 사이즈 필드 초기화
             document.getElementById('productSelect').value = '';
@@ -780,20 +834,28 @@
 
         // 현재 견적에 대한 설명을 생성하는 함수 (renderSavedQuotes 에서 사용)
         function createQuoteDescription() {
+            const previousQuoteValue = document.getElementById('inputPreviousQuote').value;
             const zValue = document.getElementById('inputZ').value || 'N/A';
-            const ceilingHeight = document.getElementById('inputCeilingHeight').value; // 천고값 가져오기
+            const ceilingHeightValue = document.getElementById('inputCeilingHeight').value; // 천고값 가져오기
             const productSelect = document.getElementById('productSelect');
             const selectedProductName = productSelect.options[productSelect.selectedIndex]?.text || '제품 미선택'; // 선택된 제품 이름 가져오기
 
             // 천고 정보 포함하여 설명 생성
             let description = `${selectedProductName} (가로 ${zValue}mm`;
-            if (ceilingHeight && parseInt(ceilingHeight) > 0) {
-                description += `, 천고 ${ceilingHeight}mm`;
-                 if (parseInt(ceilingHeight) > 2400) {
-                     description += ' [+10만]'; // 천고 추가금 표시
-                 }
+            if (ceilingHeightValue && parseInt(ceilingHeightValue) > 0) {
+                const ch = parseInt(ceilingHeightValue);
+                description += `, 천고 ${ch}mm`;
+                let tempCeilingPrice = 0;
+                if (ch > 2400 && ch <= 2455) {
+                    tempCeilingPrice = 50000;
+                } else if (ch > 2455) {
+                    tempCeilingPrice = 100000;
+                }
+                if (tempCeilingPrice > 0) {
+                    description += ` [+${(tempCeilingPrice / 10000).toLocaleString('ko-KR')}만]`;
+                }
             }
-            description += ')';
+            description += `)`; // 괄호 닫기
 
             const optionKeys = Object.keys(addedOptions);
             if (optionKeys.length > 0) {
@@ -805,6 +867,11 @@
             if (currentDirectAddAmount > 0) {
                 description += ` + 직접 추가금: ${currentDirectAddAmount.toLocaleString('ko-KR')}원`;
             }
+
+            if (previousQuoteValue && parseInt(previousQuoteValue) > 0) {
+                description += ` (기존 견적가 ${parseInt(previousQuoteValue).toLocaleString('ko-KR')}원 반영)`;
+            }
+
             return description;
         }
 
@@ -829,11 +896,22 @@
             }
         }
 
+        function formatPreviousQuoteInput() {
+            const input = document.getElementById('inputPreviousQuote');
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value) {
+                input.value = Number(value).toLocaleString('ko-KR');
+            } else {
+                input.value = '';
+            }
+        }
+
         // --- Initialization ---
         window.onload = function() {
             renderSavedQuotes(); // 초기 저장된 견적 목록 렌더링 (비어 있음)
             calculateFinalTotal(); // 초기 최종 합계 계산 (0원)
             resetInputs(); // 시작 시 입력 필드 초기화 (이 안에서 updateImage -> calculateTotal 호출됨)
+            formatPreviousQuoteInput(); // 초기화 시 원화 표기 리셋
         };
     </script>
 </body>
